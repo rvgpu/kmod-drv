@@ -60,6 +60,7 @@ static int rvgpu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
     }
 
     pci_set_drvdata(pdev, ddev);
+    rvgpu_device_init(rdev, flags);
 
     ret = drm_dev_register(ddev, flags);
     if (ret == -EAGAIN) {
@@ -77,13 +78,14 @@ err_pci:
 
 static void rvgpu_pci_remove(struct pci_dev *pdev) {
     struct drm_device *ddev = pci_get_drvdata(pdev);
-    // struct rvgpu_device *rdev = drm_to_rdev(dev);
+    struct rvgpu_device *rdev = drm_to_rdev(ddev);
 
     drm_dev_unplug(ddev);
 
+    rvgpu_device_fini(rdev);
+
     pci_disable_device(pdev);
     pci_wait_for_pending_transaction(pdev);
-
     printk("rvgpu pci remove done\n");
 }
 
