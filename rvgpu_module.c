@@ -5,7 +5,6 @@
 #include "rvgpu_module.h"
 
 
-static struct class *rvgpu_class;
 static struct pci_device_id rvgpu_id_tbl[] = {
     {PCI_DEVICE(RVGPU_HW_VENDOR_ID, RVGPU_HW_DEVICE_ID)},
     {},
@@ -29,40 +28,7 @@ static struct pci_driver rvgpu_pci_driver = {
     .remove = rvgpu_remove,
 };
 
-static void rvgpu_module_exit(void) {
-    pci_unregister_driver(&rvgpu_pci_driver);
-    class_destroy(rvgpu_class);
-    printk("rvgpu_module_exit finished successfully\n");
-}
-
-static int __init rvgpu_module_init(void) {
-    int err;
-
-    rvgpu_class = class_create(THIS_MODULE, "rvgpu");
-    if (IS_ERR(rvgpu_class)) {
-        pr_err("class_create error\n");
-        err = PTR_ERR(rvgpu_class);
-        return err;
-    }
-
-    err = pci_register_driver(&rvgpu_pci_driver);
-    if (err) {
-        pr_err("pci_register_driver error\n");
-        goto err_pci;
-    }
-
-    printk("rvgpu_module_init finished successfully\n");
-    return 0;
-
-err_pci:
-    class_destroy(rvgpu_class);
-    pr_err("rvgpu_module_init finished err=%d\n", err);
-
-    return err;
-}
-
-module_init(rvgpu_module_init);
-module_exit(rvgpu_module_exit);
+module_pci_driver(rvgpu_pci_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.0");
