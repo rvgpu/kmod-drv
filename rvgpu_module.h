@@ -12,9 +12,12 @@ struct rvgpu_bar {
     void __iomem *mmio;
 };
 
-struct rvgpu_dev {
-    struct pci_dev *pdev;
-    struct rvgpu_bar regs;
+struct rvgpu_device {
+    struct device       *dev;
+    struct pci_dev      *pdev;
+    struct drm_device   ddev;
+
+    struct rvgpu_bar    regs;
     struct rvgpu_bar vram;
 
     dev_t major;

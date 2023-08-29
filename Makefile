@@ -1,6 +1,8 @@
 obj-m += rvgpu.o
 
 rvgpu-objs += rvgpu_module.o
+rvgpu-objs += rvgpu_drm.o
+rvgpu-objs += rvgpu_dma_buf.o
 
 ccflags-y += -Werror
 
