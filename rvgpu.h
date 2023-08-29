@@ -1,7 +1,7 @@
 #ifndef __RVGPU_H__
 #define __RVGPU_H__
 
-#include "rvgpu_module.h"
+#include "rvgpu_drv.h"
 
 static inline struct rvgpu_device *drm_to_rdev(struct drm_device *ddev)
 {

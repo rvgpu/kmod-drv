@@ -9,7 +9,7 @@
 
 #include "rvgpu.h"
 #include "rvgpu_dma_buf.h"
-#include "rvgpu_module.h"
+#include "rvgpu_drv.h"
 
 static const struct drm_ioctl_desc rvgpu_ioctls[] = {
 };
