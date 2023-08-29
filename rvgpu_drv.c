@@ -39,9 +39,11 @@ static const struct drm_driver rvgpu_drm_driver = {
     .minor = 0,
 };
 
-static int rvgpu_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
+static int rvgpu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
     struct drm_device *ddev;
     struct rvgpu_device *rdev;
+    unsigned long flags = id->driver_data;
+    int ret = 0;
 
     rdev = devm_drm_dev_alloc(&pdev->dev, &rvgpu_drm_driver, typeof(*rdev), ddev);
     if (IS_ERR(rdev)) {
@@ -52,12 +54,37 @@ static int rvgpu_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
     rdev->pdev = pdev;
     ddev = rdev_to_drm(rdev);
 
-    printk("rvgpu_probe\n");
+    ret = pci_enable_device(pdev);
+    if (ret) {
+        return ret;
+    }
+
+    pci_set_drvdata(pdev, ddev);
+
+    ret = drm_dev_register(ddev, flags);
+    if (ret == -EAGAIN) {
+        DRM_INFO("register drm dev error\n");
+        goto err_pci;
+    } 
+
+    printk("rvgpu pci probe done\n");
+
     return 0;
+err_pci:
+    pci_disable_device(pdev);
+    return ret;
 }
 
-static void rvgpu_remove(struct pci_dev *pdev) {
-    printk("rvgpu_remove\n");
+static void rvgpu_pci_remove(struct pci_dev *pdev) {
+    struct drm_device *ddev = pci_get_drvdata(pdev);
+    // struct rvgpu_device *rdev = drm_to_rdev(dev);
+
+    drm_dev_unplug(ddev);
+
+    pci_disable_device(pdev);
+    pci_wait_for_pending_transaction(pdev);
+
+    printk("rvgpu pci remove done\n");
 }
 
 static struct pci_device_id rvgpu_id_tbl[] = {
@@ -70,8 +97,8 @@ MODULE_DEVICE_TABLE(pci, rvgpu_id_tbl);
 static struct pci_driver rvgpu_pci_driver = {
     .name = "rvgpu",
     .id_table = rvgpu_id_tbl,
-    .probe = rvgpu_probe,
-    .remove = rvgpu_remove,
+    .probe = rvgpu_pci_probe,
+    .remove = rvgpu_pci_remove,
 };
 
 module_pci_driver(rvgpu_pci_driver);
