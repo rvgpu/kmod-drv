@@ -1,8 +1,8 @@
 #ifndef _RVGPU_MODULE_H__
 #define _RVGPU_MODULE_H__
 
-#define RVGPU_HW_VENDOR_ID 0x1b36
-#define RVGPU_HW_DEVICE_ID 0x1100
+#define RVGPU_HW_VENDOR_ID 0x8510
+#define RVGPU_HW_DEVICE_ID 0x0500
 #define RVGPU_HW_REVISION  0x01
 
 #endif // _RVGPU_MODULE_H__
