@@ -7,6 +7,7 @@
 #include <drm/drm_ioctl.h>
 #include <drm/drm_gem.h>
 #include <drm/drm_module.h>
+#include <drm/drm_accel.h>
 
 #include "rvgpu.h"
 #include "rvgpu_dma_buf.h"
@@ -15,19 +16,10 @@
 static const struct drm_ioctl_desc rvgpu_ioctls[] = {
 };
 
-static const struct file_operations rvgpu_driver_fops = {
-    .owner = THIS_MODULE,
-    .open = drm_open,
-    .release = drm_release,
-    .unlocked_ioctl = drm_ioctl,
-    .mmap = drm_gem_mmap,
-    .poll = drm_poll,
-    .read = drm_read,
-    .llseek = noop_llseek,
-};
+DEFINE_DRM_ACCEL_FOPS(rvgpu_driver_fops);
 
 static const struct drm_driver rvgpu_drm_driver = {
-    .driver_features = DRIVER_GEM | DRIVER_RENDER,
+    .driver_features = DRIVER_GEM | DRIVER_COMPUTE_ACCEL,
     .open = rvgpu_driver_open,
     .postclose = rvgpu_driver_postclose,
     .lastclose = NULL,
