@@ -37,4 +37,14 @@ void rvgpu_driver_release(struct drm_device *dev);
 int rvgpu_device_init(struct rvgpu_device *rdev, uint32_t flags);
 void rvgpu_device_fini(struct rvgpu_device *rdev);
 
+static inline void rvgpu_device_write_register(struct rvgpu_device *rdev, uint64_t regid, uint32_t data) {
+    void *addr = (void *)(rdev->regs.mmio + regid);
+    writel(data, addr);
+}
+
+static inline uint32_t rvgpu_device_read_register(struct rvgpu_device *rdev, uint64_t regid) {
+    void *addr = (void *)(rdev->regs.mmio + regid);
+    return readl(addr);
+}
+
 #endif
