@@ -1,6 +1,7 @@
 #include <linux/sched.h>
 
 #include <drm/drm_file.h>
+#include <drm/drm_drv.h>
 
 #include "rvgpu.h"
 /*
@@ -41,10 +42,21 @@ done:
  * 
  * On device post close, tear down the device.
  */
-void rvgpu_driver_postclose(struct drm_device *dev, struct drm_file *file_priv)
+void rvgpu_driver_postclose(struct drm_device *dev, struct drm_file *fpriv)
 {
+    struct rvgpu_cli *cli = fpriv->driver_priv;
+    int dev_index;
+
+    if (!drm_dev_enter(dev, &dev_index)) {
+        return ;
+    }
+
+    printk("rvgpu_driver_postclose: %s[%d]\n", cli->prog_name, cli->prog_pid);
+    kfree(cli);
+
+    drm_dev_exit(dev_index);
+
     // struct rvgpu_device *rdev = drm_to_rdev(dev);
-    printk("rvgpu_driver_postclose\n");
 }
 
 void rvgpu_driver_release(struct drm_device *dev)
