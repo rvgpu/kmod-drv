@@ -91,7 +91,7 @@ static void rvgpu_pci_remove(struct pci_dev *pdev) {
 
 static struct pci_device_id rvgpu_id_tbl[] = {
     {PCI_DEVICE(RVGPU_HW_VENDOR_ID, RVGPU_HW_DEVICE_ID)},
-    {},
+    {0,},
 };
 
 MODULE_DEVICE_TABLE(pci, rvgpu_id_tbl);
@@ -103,7 +103,7 @@ static struct pci_driver rvgpu_pci_driver = {
     .remove = rvgpu_pci_remove,
 };
 
-module_pci_driver(rvgpu_pci_driver);
+drm_module_pci_driver(rvgpu_pci_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.0");
