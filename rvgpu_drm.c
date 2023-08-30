@@ -13,7 +13,7 @@ int rvgpu_driver_open(struct drm_device *dev, struct drm_file *file_priv)
     // struct rvgpu_device *rdev = drm_to_rdev(dev);
     printk("rvgpu_driver_open\n");
 
-    return 0;
+    return -1;
 }
 
 /*
