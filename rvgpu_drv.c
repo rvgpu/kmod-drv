@@ -6,6 +6,7 @@
 #include <drm/drm_file.h>
 #include <drm/drm_ioctl.h>
 #include <drm/drm_gem.h>
+#include <drm/drm_module.h>
 
 #include "rvgpu.h"
 #include "rvgpu_dma_buf.h"
@@ -17,20 +18,18 @@ static const struct drm_ioctl_desc rvgpu_ioctls[] = {
 DEFINE_DRM_GEM_FOPS(rvgpu_driver_fops);
 
 static const struct drm_driver rvgpu_drm_driver = {
-    .driver_features = 
-        DRIVER_GEM |
-        DRIVER_RENDER,
+    .driver_features = DRIVER_GEM | DRIVER_RENDER,
     .open = rvgpu_driver_open,
     .postclose = rvgpu_driver_postclose,
-    .lastclose = NULL,
-    .ioctls = rvgpu_ioctls,
-    .num_ioctls = ARRAY_SIZE(rvgpu_ioctls),
-    .fops = &rvgpu_driver_fops,
-    .release = &rvgpu_driver_release,
-    .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
-    .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
-    .gem_prime_import  = rvgpu_gem_prime_import,
-    .gem_prime_mmap = drm_gem_prime_mmap,
+    // .lastclose = NULL,
+    // .ioctls = rvgpu_ioctls,
+    // .num_ioctls = ARRAY_SIZE(rvgpu_ioctls),
+    // .fops = &rvgpu_driver_fops,
+    // .release = &rvgpu_driver_release,
+    // .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+    // .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+    // .gem_prime_import  = rvgpu_gem_prime_import,
+    // .gem_prime_mmap = drm_gem_prime_mmap,
     
     .name = "rvgpu",
     .desc = "rvgpu DRM",

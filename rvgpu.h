@@ -1,7 +1,15 @@
 #ifndef __RVGPU_H__
 #define __RVGPU_H__
 
+#include "drm/drm_device.h"
+
 #include "rvgpu_drv.h"
+
+struct rvgpu_cli {
+    struct rvgpu_device     *rdev;
+    char                    prog_name[TASK_COMM_LEN];
+    int                     prog_pid;
+};
 
 struct rvgpu_register {
     resource_size_t         base;
