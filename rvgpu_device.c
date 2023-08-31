@@ -3,6 +3,7 @@
 #include <drm/drm_device.h>
 
 #include "rvgpu.h"
+#include "rvgpu_ttm.h"
 
 /**
  * rvgpu_device_init - initialize the driver
@@ -31,6 +32,9 @@ int rvgpu_device_init(struct rvgpu_device *rdev, uint32_t flags)
 
     DRM_INFO("register mmio base: 0x%08x, size: %u\n", 
             (uint32_t)rdev->regs.base, (unsigned)rdev->regs.size);
+
+    // initialize VRAM
+    rvgpu_ttm_init(rdev);
 
     return ret;
 }

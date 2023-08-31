@@ -2,6 +2,7 @@
 #define __RVGPU_H__
 
 #include "drm/drm_device.h"
+#include "drm/ttm/ttm_device.h"
 
 #include "rvgpu_drv.h"
 
@@ -17,12 +18,17 @@ struct rvgpu_register {
     void __iomem            *mmio;
 };
 
+struct rvgpu_ttm {
+    struct ttm_device       bdev;   // bo dev ?
+};
+
 struct rvgpu_device {
     struct device           *dev;
     struct pci_dev          *pdev;
     struct drm_device       ddev;
 
     struct rvgpu_register   regs;
+    struct rvgpu_ttm        ttm;
 };
 
 static inline struct rvgpu_device *drm_to_rdev(struct drm_device *ddev)
