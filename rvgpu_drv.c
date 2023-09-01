@@ -11,8 +11,11 @@
 #include "rvgpu.h"
 #include "rvgpu_dma_buf.h"
 #include "rvgpu_drv.h"
+#include "rvgpu_drm.h"
+#include "rvgpu_gem.h"
 
 static const struct drm_ioctl_desc rvgpu_ioctls[] = {
+    DRM_IOCTL_DEF_DRV(RVGPU_CMD_GEM_NEW, rvgpu_ioctl_gem_new, DRM_RENDER_ALLOW),
 };
 
 static const struct file_operations rvgpu_driver_fops = {

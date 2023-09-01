@@ -10,3 +10,4 @@ find_package(PkgConfig)
 pkg_search_module(dep_libdrm REQUIRED libdrm>=2.4.100)
 
 kmodtest_drm(drmdevice)
+kmodtest_drm(drmbo)

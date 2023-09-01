@@ -4,6 +4,8 @@
 #include <drm/drm_drv.h>
 
 #include "rvgpu.h"
+#include "rvgpu_drm.h"
+
 /*
  * rvgpu_driver_open - drm callback for open
  * @dev: drm dev pointer
