@@ -18,15 +18,15 @@ struct rvgpu_bo {
     void *map; 
 };
 
-static int rvgpu_bo_new(int fd, uint32_t flags, uint32_t align, uint64_t size, struct rvgpu_bo *bo)
+static int rvgpu_bo_new(int fd, uint32_t size, uint32_t align, uint32_t domains, uint32_t flags, struct rvgpu_bo *bo)
 {
     int ret = 0;
     struct drm_rvgpu_gem_new req = {};
-    struct drm_rvgpu_gem_info *info = &req.info;
 
-    info->domain = flags;
-    info->size = size;
-    req.align = align;
+    req.in.size = size;
+    req.in.alignment = align;
+    req.in.domains = domains;
+    req.in.flags = flags;
 
     ret = drmCommandWriteRead(fd, DRM_RVGPU_CMD_GEM_NEW, &req, sizeof(req));
     if (ret != 0) {
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     }
 
     struct rvgpu_bo bo;
-    err = rvgpu_bo_new(fd, RVGPU_GEM_BO_VRAM, 0, 4096, &bo);
+    err = rvgpu_bo_new(fd, 4096, 0, RVGPU_GEM_BO_VRAM, 0, &bo);
 #if 0
 	err = nouveau_device_wrap(fd, 0, &nvdev);
 	if (!err)

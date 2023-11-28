@@ -35,23 +35,22 @@
 #define DRM_RVGPU_CMD_GEM_INFO              0x44
 
 /** Interface Structuract **/
-struct drm_rvgpu_gem_info {
-    __u32 handle;
-    __u32 domain;
-    __u64 size;
-    __u64 offset;
-    __u64 map_handle;
-    __u32 tile_mode;
-    __u32 tile_flags;
-};
-
 struct drm_rvgpu_gem_new {
-    struct drm_rvgpu_gem_info info;
-    __u32 channel_hint;
-    __u32 align;
+    /* in */
+    struct {
+        __u64   size;
+        __u64   alignment;
+        __u64   domains;
+        __u64   flags;
+    } in;
+    /* out */
+    struct {
+        __u32   handle;
+        __u32   _pad;
+    } out;
 }; 
 
 #define IOCTLCMD_WR(cmd, type)              DRM_IOWR(DRM_COMMAND_BASE + cmd, type)
-#define DRM_IOCTL_RVGPU_CMD_GEM_NEW           IOCTLCMD_WR(DRM_RVGPU_CMD_GEM_NEW, struct drm_rvgpu_gem_new)
+#define DRM_IOCTL_RVGPU_CMD_GEM_NEW         IOCTLCMD_WR(DRM_RVGPU_CMD_GEM_NEW, struct drm_rvgpu_gem_new)
 
 #endif // __RVGPU_DRM_H__
