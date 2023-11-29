@@ -3,6 +3,26 @@
 #include <drm/ttm/ttm_device.h>
 #include <drm/ttm/ttm_bo_api.h>
 
+#include "rvgpu.h"
+#include "rvgpu_bo.h"
+
+struct rvgpu_bo *
+rvgpu_bo_alloc(struct rvgpu_cli *cli, u64 *size, int *align, u32 domain, u32 flags) {
+    struct rvgpu_bo *rbo;
+
+    if (!*size) {
+        printk("skipped size %016llx\n", *size);
+        return ERR_PTR(-EINVAL);
+    }
+
+    rbo = kzalloc(sizeof(struct rvgpu_bo), GFP_KERNEL);
+    if (!rbo) {
+        return ERR_PTR(-ENOMEM);
+    }
+
+    return rbo;
+}
+
 static int
 rvgpu_bo_move(struct ttm_buffer_object *bo, bool evict,
               struct ttm_operation_ctx *ctx,

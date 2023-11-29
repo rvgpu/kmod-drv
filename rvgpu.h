@@ -1,6 +1,7 @@
 #ifndef __RVGPU_H__
 #define __RVGPU_H__
 
+#include "drm/drm_file.h"
 #include "drm/drm_device.h"
 #include "drm/ttm/ttm_device.h"
 
@@ -39,6 +40,10 @@ static inline struct rvgpu_device *drm_to_rdev(struct drm_device *ddev)
 static inline struct drm_device *rdev_to_drm(struct rvgpu_device *rdev)
 {
     return &rdev->ddev;
+}
+
+static inline struct rvgpu_cli *rvgpu_cli(struct drm_file *file_priv) {
+    return file_priv ? file_priv->driver_priv : NULL;
 }
 
 
