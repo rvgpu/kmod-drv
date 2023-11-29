@@ -4,6 +4,8 @@
 #include <drm/drm_gem.h>
 #include <drm/ttm/ttm_bo_driver.h>
 
+#include "rvgpu.h"
+
 struct rvgpu_bo {
     struct ttm_buffer_object bo;
     struct ttm_placement placement;

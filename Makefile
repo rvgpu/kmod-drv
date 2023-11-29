@@ -6,7 +6,8 @@ rvgpu-objs += rvgpu_drv.o \
               rvgpu_dma_buf.o \
               rvgpu_ttm.o \
               rvgpu_gem.o \
-              rvgpu_bo.o
+              rvgpu_bo.o \
+              rvgpu_prime.o
 
 ccflags-y += -Werror
 
