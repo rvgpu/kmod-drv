@@ -8,6 +8,29 @@
 #include "rvgpu_ttm.h"
 #include "rvgpu_bo.h"
 
+static void rvgpu_bo_del_ttm(struct ttm_buffer_object *bo)
+{
+    struct rvgpu_device *rdev = rvgpu_bdev(bo->bdev);
+    struct rvgpu_bo *rbo = rvgpu_bo(bo);
+
+    WARN_ON(rbo->bo.pin_count > 0);
+
+    mutex_lock(&rdev->ttm.io_reserve_mutex);
+    list_move_tail(&rbo->io_reserve_lru, &rdev->ttm.io_reserve_lru);
+    mutex_unlock(&rdev->ttm.io_reserve_mutex);
+
+    /* If rvgpu_bo_new() allocated this buffer, the GEM object was never initialized,
+     * so don't attempt to release it.
+     */
+    if (bo->base.dev) {
+        drm_gem_object_release(&bo->base);
+    } else {
+        dma_resv_fini(&bo->base._resv);
+    }
+
+    kfree(rbo);
+}
+
 static void set_placement_list(struct ttm_place *pl, unsigned *n, uint32_t domain)
 {
     *n = 0;
@@ -33,8 +56,23 @@ static void set_placement_list(struct ttm_place *pl, unsigned *n, uint32_t domai
 static void set_placement_range(struct rvgpu_bo *rbo, uint32_t domain)
 {
     struct rvgpu_device *dev = rvgpu_bdev(rbo->bo.bdev);
-    u64 vram_size = dev->vram_size;
-    printk("VRAM Size: %lld\n", vram_size);
+    u64 vram_size = dev->vraminfo.size;
+    unsigned i, fpfn, lpfn;
+
+    if ((domain & RVGPU_GEM_DOMAIN_VRAM) && (rbo->bo.base.size < vram_size / 4)) {
+        fpfn = 0;
+        lpfn = (vram_size / 2) >> PAGE_SHIFT;
+
+        for (i=0; i<rbo->placement.num_placement; ++i) {
+            rbo->placements[i].fpfn = fpfn;
+            rbo->placements[i].lpfn = lpfn;
+        }
+
+        for (i=0; i<rbo->placement.num_busy_placement; i++) {
+            rbo->busy_placements[i].fpfn = fpfn;
+            rbo->busy_placements[i].lpfn = lpfn;
+        }
+    }
 }
 
 void rvgpu_bo_placement_set(struct rvgpu_bo *rbo, uint32_t domain, uint32_t busy)
@@ -53,10 +91,18 @@ void rvgpu_bo_placement_set(struct rvgpu_bo *rbo, uint32_t domain, uint32_t busy
 int rvgpu_bo_init(struct rvgpu_bo *rbo, u64 size, int align, u32 domain,
         struct sg_table *sg, struct dma_resv *robj) 
 {
-    // int type = sg ? ttm_bo_type_sg : ttm_bo_type_device;
+    int type = sg ? ttm_bo_type_sg : ttm_bo_type_device;
     int ret = 0;
 
     rvgpu_bo_placement_set(rbo, domain, 0);
+    INIT_LIST_HEAD(&rbo->io_reserve_lru);
+
+    ret = ttm_bo_init_validate(rbo->bo.bdev, &rbo->bo, type, &rbo->placement,
+                align >> PAGE_SHIFT, false, sg, robj, rvgpu_bo_del_ttm);
+    if (ret) {
+        printk("ttm_bo_init_validate error\n");
+        return ret;
+    }
 
     return ret;
 }

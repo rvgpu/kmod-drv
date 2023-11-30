@@ -19,8 +19,18 @@ struct rvgpu_register {
     void __iomem            *mmio;
 };
 
+struct rvgpu_vram_info {
+    u64                     base;
+    u64                     size;
+};
+
 struct rvgpu_ttm {
     struct ttm_device       bdev;   // bo dev ?
+ 
+    struct mutex            io_reserve_mutex;
+    struct list_head        io_reserve_lru;
+
+    int mttr;
 };
 
 struct rvgpu_device {
@@ -31,7 +41,7 @@ struct rvgpu_device {
     struct rvgpu_register   regs;
     
     // VRAM
-    u64                     vram_size;
+    struct rvgpu_vram_info  vraminfo;
     struct rvgpu_ttm        ttm;
 };
 

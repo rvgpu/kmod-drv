@@ -14,10 +14,16 @@ struct rvgpu_bo {
     struct ttm_place busy_placements[3];
 
     struct list_head head;
+    struct list_head io_reserve_lru;
 
     /* protected by ttm_bo_reserve() */
     struct drm_file *reserved_by;
 };
+
+static inline struct rvgpu_bo *rvgpu_bo(struct ttm_buffer_object *bo)
+{
+    return container_of(bo, struct rvgpu_bo, bo);
+}
 
 extern struct ttm_device_funcs rvgpu_bo_driver;
 
