@@ -29,6 +29,9 @@ struct rvgpu_device {
     struct drm_device       ddev;
 
     struct rvgpu_register   regs;
+    
+    // VRAM
+    u64                     vram_size;
     struct rvgpu_ttm        ttm;
 };
 

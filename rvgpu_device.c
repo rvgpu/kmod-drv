@@ -25,6 +25,7 @@ int rvgpu_device_init(struct rvgpu_device *rdev, uint32_t flags)
     // Registers mapping
     rdev->regs.base = pci_resource_start(pdev, 2);
     rdev->regs.size = pci_resource_len(pdev, 2);
+    rdev->vram_size = pci_resource_len(pdev, 0);
     rdev->regs.mmio = ioremap(rdev->regs.base, rdev->regs.size);
     if (rdev->regs.mmio == NULL) {
         return -ENOMEM;

@@ -48,6 +48,7 @@ const struct drm_gem_object_funcs rvgpu_gem_object_funcs = {
 int
 rvgpu_gem_new(struct rvgpu_cli *cli, u64 size, int align, u32 domain, u32 flags, struct rvgpu_bo **prbo)
 {
+    struct rvgpu_device *rdev = cli->rdev;
     struct rvgpu_bo *rbo;
     int ret = 0;
 
@@ -57,6 +58,20 @@ rvgpu_gem_new(struct rvgpu_cli *cli, u64 size, int align, u32 domain, u32 flags,
     }
 
     rbo->bo.base.funcs = &rvgpu_gem_object_funcs;
+
+    /* Initialize the embedded gem-object.
+     * We return a single gem-reference to the caller, instead of a normal rvgpu_bo ttm_reference.
+     */
+    ret = drm_gem_object_init(&rdev->ddev, &rbo->bo.base, size);
+    if (ret) {
+        drm_gem_object_release(&rbo->bo.base);
+        kfree(rbo);
+        return ret;
+    }
+
+    ret = rvgpu_bo_init(rbo, size, align, domain, NULL, NULL);
+
+    printk("rvgpu_gem_new ok\n");
     return ret;
 }
 

@@ -1,21 +1,25 @@
 #ifndef __RVGPU_DRM_H__
 #define __RVGPU_DRM_H__
 
-/** Bo Flags **/
-#define RVGPU_GEM_BO_VRAM                   0x00000001
-#define RVGPU_GEM_BO_GART                   0x00000002
-#define RVGPU_GEM_BO_APER                   (RVGPU_GEM_BO_VRAM | RVGPU_GEM_BO_GART)
-#define RVGPU_GEM_BO_RD                     0x00000100
-#define RVGPU_GEM_BO_WR                     0x00000200
-#define RVGPU_GEM_BO_RDWR                   (RVGPU_GEM_BO_RD | RVGPU_GEM_BO_WR)
-#define RVGPU_GEM_BO_NOBLOCK                0x00000400
-#define RVGPU_GEM_BO_LOW                    0x00001000
-#define RVGPU_GEM_BO_HIGH                   0x00002000
-#define RVGPU_GEM_BO_OR                     0x00004000
-#define RVGPU_GEM_BO_MAP                    0x80000000
-#define RVGPU_GEM_BO_CONTIG                 0x40000000
-#define RVGPU_GEM_BO_NOSNOOP                0x20000000
-#define RVGPU_GEM_BO_COHERENT               0x10000000
+/** Bo Domain Flags **/
+#define RVGPU_GEM_DOMAIN_CPU                (1 << 0)
+#define RVGPU_GEM_DOMAIN_VRAM               (1 << 1)
+#define RVGPU_GEM_DOMAIN_GART               (1 << 2)
+#define RVGPU_GEM_DOMAIN_MAPPABLE           (1 << 3)
+#define RVGPU_GEM_DOMAIN_COHERENT           (1 << 4)
+
+// #define RVGPU_GEM_BO_APER                   (RVGPU_GEM_BO_VRAM | RVGPU_GEM_BO_GART)
+// #define RVGPU_GEM_BO_RD                     0x00000100
+// #define RVGPU_GEM_BO_WR                     0x00000200
+// #define RVGPU_GEM_BO_RDWR                   (RVGPU_GEM_BO_RD | RVGPU_GEM_BO_WR)
+// #define RVGPU_GEM_BO_NOBLOCK                0x00000400
+// #define RVGPU_GEM_BO_LOW                    0x00001000
+// #define RVGPU_GEM_BO_HIGH                   0x00002000
+// #define RVGPU_GEM_BO_OR                     0x00004000
+// #define RVGPU_GEM_BO_MAP                    0x80000000
+// #define RVGPU_GEM_BO_CONTIG                 0x40000000
+// #define RVGPU_GEM_BO_NOSNOOP                0x20000000
+// #define RVGPU_GEM_BO_COHERENT               0x10000000
 
 /** DRM Ioctl Commands **/
 #define DRM_RVGPU_CMD_GETPARAM              0x00

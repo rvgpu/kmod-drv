@@ -4,10 +4,66 @@
 #include <drm/ttm/ttm_bo_api.h>
 
 #include "rvgpu.h"
+#include "rvgpu_drm.h"
+#include "rvgpu_ttm.h"
 #include "rvgpu_bo.h"
+
+static void set_placement_list(struct ttm_place *pl, unsigned *n, uint32_t domain)
+{
+    *n = 0;
+
+    if (domain & RVGPU_GEM_DOMAIN_VRAM) {
+        pl[*n].mem_type = TTM_PL_VRAM;
+        pl[*n].flags = 0;
+        (*n)++;
+    }
+
+    if (domain & RVGPU_GEM_DOMAIN_GART) {
+        pl[*n].mem_type = TTM_PL_TT;
+        pl[*n].flags = 0;
+        (*n)++;
+    }
+
+    if (domain & RVGPU_GEM_DOMAIN_CPU) {
+        pl[*n].mem_type = TTM_PL_SYSTEM;
+        pl[(*n)++].flags = 0;
+    }
+}
+
+static void set_placement_range(struct rvgpu_bo *rbo, uint32_t domain)
+{
+    struct rvgpu_device *dev = rvgpu_bdev(rbo->bo.bdev);
+    u64 vram_size = dev->vram_size;
+    printk("VRAM Size: %lld\n", vram_size);
+}
+
+void rvgpu_bo_placement_set(struct rvgpu_bo *rbo, uint32_t domain, uint32_t busy)
+{
+    struct ttm_placement *pl = &rbo->placement;
+
+    pl->placement = rbo->placements;
+    set_placement_list(rbo->placements, &pl->num_placement, domain);
+
+    pl->busy_placement = rbo->busy_placements;
+    set_placement_list(rbo->busy_placements, &pl->num_busy_placement, domain | busy);
+
+    set_placement_range(rbo, domain);
+}
+
+int rvgpu_bo_init(struct rvgpu_bo *rbo, u64 size, int align, u32 domain,
+        struct sg_table *sg, struct dma_resv *robj) 
+{
+    // int type = sg ? ttm_bo_type_sg : ttm_bo_type_device;
+    int ret = 0;
+
+    rvgpu_bo_placement_set(rbo, domain, 0);
+
+    return ret;
+}
 
 struct rvgpu_bo *
 rvgpu_bo_alloc(struct rvgpu_cli *cli, u64 *size, int *align, u32 domain, u32 flags) {
+    struct rvgpu_device *rdev = cli->rdev;
     struct rvgpu_bo *rbo;
 
     if (!*size) {
@@ -20,6 +76,7 @@ rvgpu_bo_alloc(struct rvgpu_cli *cli, u64 *size, int *align, u32 domain, u32 fla
         return ERR_PTR(-ENOMEM);
     }
 
+    rbo->bo.bdev = &rdev->ttm.bdev;
     return rbo;
 }
 

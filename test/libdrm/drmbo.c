@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     }
 
     struct rvgpu_bo bo;
-    err = rvgpu_bo_new(fd, 4096, 0, RVGPU_GEM_BO_VRAM, 0, &bo);
+    err = rvgpu_bo_new(fd, 4096, 0, RVGPU_GEM_DOMAIN_VRAM, 0, &bo);
 #if 0
 	err = nouveau_device_wrap(fd, 0, &nvdev);
 	if (!err)
