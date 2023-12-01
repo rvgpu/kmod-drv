@@ -51,14 +51,21 @@ const struct ttm_resource_manager_func rvgpu_vram_manager = {
 
 static int rvgpu_ttm_init_vram(struct rvgpu_device *rdev)
 {
+    int err;
     struct ttm_resource_manager *man = kzalloc(sizeof(*man), GFP_KERNEL);
     if (!man) {
         return -ENOMEM;
     }
 
+    ttm_resource_manager_init(man, &rdev->ttm.bdev, rdev->vraminfo.size >> PAGE_SHIFT);
+
     man->func = &rvgpu_vram_manager;
 
-    ttm_resource_manager_init(man, &rdev->ttm.bdev, rdev->vraminfo.size >> PAGE_SHIFT);
+    err = drm_buddy_init(&rdev->mm, man->size, PAGE_SIZE);
+    if (err) {
+        return err;
+    }
+
     ttm_set_driver_manager(&rdev->ttm.bdev, TTM_PL_VRAM, man);
     ttm_resource_manager_set_used(man, true);
 
@@ -92,16 +99,14 @@ int rvgpu_ttm_init(struct rvgpu_device *rdev)
     }
     
     /* VRAM init */
-    arch_io_reserve_memtype_wc(rdev->vraminfo.base, rdev->vraminfo.size);
     ret = rvgpu_ttm_init_vram(rdev);
     if (ret) {
         printk("VRAM mm init failed, %d\n", ret);
         return ret;
     } 
 
-    rdev->ttm.mttr = arch_phys_wc_add(rdev->vraminfo.base, rdev->vraminfo.size);
-
     // GART init TODO
+
     mutex_init(&rdev->ttm.io_reserve_mutex);
     INIT_LIST_HEAD(&rdev->ttm.io_reserve_lru);
 

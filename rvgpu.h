@@ -2,6 +2,7 @@
 #define __RVGPU_H__
 
 #include "drm/drm_file.h"
+#include "drm/drm_buddy.h"
 #include "drm/drm_device.h"
 #include "drm/ttm/ttm_device.h"
 
@@ -46,6 +47,8 @@ struct rvgpu_device {
     // VRAM space
     struct rvgpu_vram_info  vraminfo;
     struct rvgpu_ttm        ttm;
+    struct ttm_resource_manager manager;
+    struct drm_buddy        mm;
 
     // CLients
     struct list_head        clients;
