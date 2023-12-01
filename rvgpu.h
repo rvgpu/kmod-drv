@@ -11,6 +11,8 @@ struct rvgpu_cli {
     struct rvgpu_device     *rdev;
     char                    prog_name[TASK_COMM_LEN];
     int                     prog_pid;
+
+    struct list_head        head;
 };
 
 struct rvgpu_register {
@@ -38,11 +40,16 @@ struct rvgpu_device {
     struct pci_dev          *pdev;
     struct drm_device       ddev;
 
+    // Register space
     struct rvgpu_register   regs;
     
-    // VRAM
+    // VRAM space
     struct rvgpu_vram_info  vraminfo;
     struct rvgpu_ttm        ttm;
+
+    // CLients
+    struct list_head        clients;
+    struct mutex            clients_lock;
 };
 
 static inline struct rvgpu_device *drm_to_rdev(struct drm_device *ddev)

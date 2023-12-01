@@ -32,7 +32,12 @@ int rvgpu_driver_open(struct drm_device *dev, struct drm_file *fpriv)
     printk("rvgpu_driver_open: %s[%d]\n", cli->prog_name, cli->prog_pid);
     fpriv->driver_priv = cli;
 
+    mutex_lock(&rdev->clients_lock);
+    list_add(&cli->head, &rdev->clients);
+    mutex_unlock(&rdev->clients_lock);
+
     return 0;
+
 done:
     return ret;
 }

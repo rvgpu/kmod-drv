@@ -19,8 +19,10 @@ int rvgpu_device_init(struct rvgpu_device *rdev, uint32_t flags)
 {
     // struct drm_device *ddev = rdev_to_drm(rdev);
     struct pci_dev *pdev = rdev->pdev;
-
     int ret = 0;
+
+    INIT_LIST_HEAD(&rdev->clients);
+    mutex_init(&rdev->clients_lock);
 
     // Registers mapping
     rdev->regs.base = pci_resource_start(pdev, 2);
@@ -37,6 +39,7 @@ int rvgpu_device_init(struct rvgpu_device *rdev, uint32_t flags)
     rdev->vraminfo.base = pci_resource_start(pdev, 0);
     rdev->vraminfo.size = pci_resource_len(pdev, 0);
     rvgpu_ttm_init(rdev);
+
 
     return ret;
 }
