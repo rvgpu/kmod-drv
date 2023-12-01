@@ -43,6 +43,8 @@ static int rvgpu_vram_manager_new(struct ttm_resource_manager *man,
     }
 
     ttm_resource_init(bo, place, *res);
+
+    printk("%s ok\n", __func__);
     return 0;
 }
 

@@ -79,6 +79,9 @@ void rvgpu_bo_placement_set(struct rvgpu_bo *rbo, uint32_t domain, uint32_t busy
 {
     struct ttm_placement *pl = &rbo->placement;
 
+    pl->num_placement = 1;
+    pl->num_busy_placement = 1;
+
     pl->placement = rbo->placements;
     set_placement_list(rbo->placements, &pl->num_placement, domain);
 
@@ -86,6 +89,15 @@ void rvgpu_bo_placement_set(struct rvgpu_bo *rbo, uint32_t domain, uint32_t busy
     set_placement_list(rbo->busy_placements, &pl->num_busy_placement, domain | busy);
 
     set_placement_range(rbo, domain);
+
+    // printk("pl->placement.fpfn: %d\n", pl->placement->fpfn);
+    // printk("pl->placement.lpfn: %d\n", pl->placement->lpfn);
+    // printk("pl->placement.mem_type: %d\n", pl->placement->mem_type);
+    // printk("pl->placement.lpfn: %d\n", pl->placement->flags);
+    // printk("pl->busy_placement.fpfn: %d\n", pl->busy_placement->fpfn);
+    // printk("pl->busy_placement.lpfn: %d\n", pl->busy_placement->lpfn);
+    // printk("pl->busy_placement.mem_type: %d\n", pl->busy_placement->mem_type);
+    // printk("pl->busy_placement.lpfn: %d\n", pl->busy_placement->flags);
 }
 
 int rvgpu_bo_init(struct rvgpu_bo *rbo, u64 size, int align, u32 domain,
@@ -100,7 +112,7 @@ int rvgpu_bo_init(struct rvgpu_bo *rbo, u64 size, int align, u32 domain,
     ret = ttm_bo_init_validate(rbo->bo.bdev, &rbo->bo, type, &rbo->placement,
                 align >> PAGE_SHIFT, false, sg, robj, rvgpu_bo_del_ttm);
     if (ret) {
-        printk("ttm_bo_init_validate error\n");
+        printk("ttm_bo_init_validate error: %d\n", ret);
         return ret;
     }
 
@@ -157,8 +169,23 @@ rvgpu_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
 static struct ttm_tt *
 rvgpu_ttm_tt_create(struct ttm_buffer_object *bo, uint32_t page_flags)
 {
-    printk("rvgpu_ttm_tt_create TODO\n");
-    return NULL;
+    struct rvgpu_ttm_tt *gtt;
+    enum ttm_caching caching;
+
+    gtt = kzalloc(sizeof(struct rvgpu_ttm_tt), GFP_KERNEL);
+    if (!gtt) {
+        return NULL;
+    }
+    
+    caching = ttm_cached;
+
+    /* allocate space for the uninitialized page entries */
+    if (ttm_sg_tt_init(&gtt->ttm, bo, page_flags, caching)) {
+        kfree(gtt);
+        return NULL;
+    }
+    
+    return &gtt->ttm;
 }
 
 static int
