@@ -71,6 +71,7 @@ rvgpu_gem_new(struct rvgpu_cli *cli, u64 size, int align, u32 domain, u32 flags,
 
     ret = rvgpu_bo_init(rbo, size, align, domain, NULL, NULL);
 
+    *prbo = rbo;
     printk("rvgpu_gem_new ok\n");
     return ret;
 }
@@ -84,5 +85,15 @@ rvgpu_ioctl_gem_new(struct drm_device *ddev, void *data, struct drm_file *file_p
     int ret = 0;
 
     ret = rvgpu_gem_new(cli, req->in.size, req->in.alignment, req->in.domains, req->in.flags, &rbo);
+    if (ret) {
+        return ret;
+    }
+
+    ret = drm_gem_handle_create(file_priv, &rbo->bo.base, &req->out.handle);
+    if (ret == 0) {
+        req->out.offset = drm_vma_node_offset_addr(&rbo->bo.base.vma_node);
+    }
+
+    drm_gem_object_put(&rbo->bo.base);
     return ret;
 }

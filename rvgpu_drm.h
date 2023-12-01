@@ -50,6 +50,7 @@ struct drm_rvgpu_gem_new {
     /* out */
     struct {
         __u32   handle;
+        __u64   offset;
         __u32   _pad;
     } out;
 }; 
