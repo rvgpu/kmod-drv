@@ -1,3 +1,10 @@
 *.o
+*.cmd
 cscope.*
 tags
+Module.symvers
+modules.order
+rvgpu.ko
+rvgpu.mod
+rvgpu.mod.c
+build
