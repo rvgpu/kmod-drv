@@ -32,14 +32,18 @@ static int rvgpu_vram_manager_new(struct ttm_resource_manager *man,
 {
     // struct rvgpu_bo *rbo = rvgpu_bo(bo);
     struct rvgpu_device *rdev = rvgpu_bdev(bo->bdev);
-    int ret = 0;
 
     if (rdev->vraminfo.size == 0) {
         return -ENOMEM;
     }
 
-    printk("%s TODO\n", __func__);
-    return ret;
+    *res = kzalloc(sizeof(**res), GFP_KERNEL);
+    if (!*res) {
+        return -ENOMEM;
+    }
+
+    ttm_resource_init(bo, place, *res);
+    return 0;
 }
 
 const struct ttm_resource_manager_func rvgpu_vram_manager = {
