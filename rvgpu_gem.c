@@ -22,17 +22,6 @@ void rvgpu_gem_object_close(struct drm_gem_object *gem, struct drm_file *file_pr
     RVGPU_FUNC_TODO();
 }
 
-static int rvgpu_gem_ttm_vmap(struct drm_gem_object *obj, struct iosys_map *map)
-{
-    RVGPU_FUNC_TODO();
-    return 0;
-}
-
-static void rvgpu_gem_ttm_vunmap(struct drm_gem_object *obj, struct iosys_map *map)
-{
-    RVGPU_FUNC_TODO();
-}
-
 const struct drm_gem_object_funcs rvgpu_gem_object_funcs = {
     .free = rvgpu_gem_object_del,
     .open = rvgpu_gem_object_open,
@@ -40,8 +29,8 @@ const struct drm_gem_object_funcs rvgpu_gem_object_funcs = {
     .pin = rvgpu_gem_prime_pin,
     .unpin = rvgpu_gem_prime_unpin,
     .get_sg_table = rvgpu_gem_prime_get_sg_table,
-    .vmap = rvgpu_gem_ttm_vmap,
-    .vunmap = rvgpu_gem_ttm_vunmap,
+    .vmap = drm_gem_ttm_vmap,
+    .vunmap = drm_gem_ttm_vunmap,
     .mmap = drm_gem_ttm_mmap,
     .print_info = drm_gem_ttm_print_info,
 };
