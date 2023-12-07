@@ -37,8 +37,7 @@ static void *rvgpu_bo_new(int fd, uint32_t size, uint32_t align, uint32_t domain
 
 int device_init() {
     drmVersionPtr version;
-    const char *device = NULL;
-    int err, fd;
+    int fd;
     fd = drmOpenWithType("rvgpu", NULL, DRM_NODE_RENDER);
     EXPECT_GT(fd, 0);
 
