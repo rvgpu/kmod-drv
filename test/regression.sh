@@ -8,8 +8,17 @@ mkdir -p ${proj_path}/regression
 
 pushd ${proj_path}/regression
     cmake ${proj_path}/test
+    if [ $? -ne 0 ]; then
+        exit -1
+    fi
 
     make -j `nproc`
+    if [ $? -ne 0 ]; then
+        exit -1
+    fi
 
     make test
+    if [ $? -ne 0 ]; then
+        exit -1
+    fi
 popd

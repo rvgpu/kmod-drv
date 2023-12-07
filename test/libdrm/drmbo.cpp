@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <dlfcn.h>
@@ -34,16 +35,12 @@ static void *rvgpu_bo_new(int fd, uint32_t size, uint32_t align, uint32_t domain
     return addr;
 }
 
-int main(int argc, char *argv[])
-{
+int device_init() {
     drmVersionPtr version;
     const char *device = NULL;
     int err, fd;
     fd = drmOpenWithType("rvgpu", NULL, DRM_NODE_RENDER);
-    if (fd < 0) {
-        fprintf(stderr, "Opening rvgpu render node failed with %i\n", fd);
-        return fd;
-    }
+    EXPECT_GT(fd, 0);
 
     version = drmGetVersion(fd);
     if (version) {
@@ -54,14 +51,22 @@ int main(int argc, char *argv[])
         printf("  Description: %s\n", version->desc);
         drmFreeVersion(version);
     }
+ 
+    return fd;
+}
 
-    uint32_t size = 4096;
+void test_rw(int fd, uint32_t size)
+{
     void *addr = rvgpu_bo_new(fd, size, 0, RVGPU_GEM_DOMAIN_VRAM, 0);
     for (uint32_t i=0; i<size/4; i++) {
         uint32_t *buf = (uint32_t *)addr;
         buf[i] = i;
-        if (buf[i] != i) {
-            printf("error to write vram\n");
-        }
+        EXPECT_EQ(buf[i], i);
     }
+}
+
+TEST(DRMBO, READ_AND_WRITE) {
+    int fd = device_init();
+
+    test_rw(fd, 4096);
 }
