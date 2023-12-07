@@ -1,3 +1,5 @@
+#include "drm/ttm/ttm_range_manager.h"
+
 #include "rvgpu.h"
 #include "rvgpu_ttm.h"
 #include "rvgpu_bo.h"
@@ -57,25 +59,7 @@ const struct ttm_resource_manager_func rvgpu_vram_manager = {
 
 static int rvgpu_ttm_init_vram(struct rvgpu_device *rdev)
 {
-    int err;
-    struct ttm_resource_manager *man = kzalloc(sizeof(*man), GFP_KERNEL);
-    if (!man) {
-        return -ENOMEM;
-    }
-
-    ttm_resource_manager_init(man, &rdev->ttm.bdev, rdev->vraminfo.size >> PAGE_SHIFT);
-
-    man->func = &rvgpu_vram_manager;
-
-    err = drm_buddy_init(&rdev->mm, man->size, PAGE_SIZE);
-    if (err) {
-        return err;
-    }
-
-    ttm_set_driver_manager(&rdev->ttm.bdev, TTM_PL_VRAM, man);
-    ttm_resource_manager_set_used(man, true);
-
-    return 0;
+    return ttm_range_man_init(&rdev->ttm.bdev, TTM_PL_VRAM, false, rdev->vraminfo.size >> PAGE_SHIFT);
 }
 
 int rvgpu_ttm_init(struct rvgpu_device *rdev)

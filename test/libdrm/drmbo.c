@@ -1,3 +1,4 @@
+#include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <dlfcn.h>
 #include <fcntl.h>
@@ -34,6 +35,16 @@ static int rvgpu_bo_new(int fd, uint32_t size, uint32_t align, uint32_t domains,
         return ret;
     }
 
+    printf("bo.handle: %x\n", req.out.handle);
+    printf("bo.offset: %llx\n", req.out.offset);
+    uint32_t *addr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, req.out.offset);
+    if (addr == MAP_FAILED) {
+        return -errno;
+    }
+
+    printf("addr: %lx\n", addr);
+    printf("data: %d\n", addr[0]);
+    // addr[0] = 0x12345678;
     return 0;
 }
 

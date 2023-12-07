@@ -31,64 +31,27 @@ static void rvgpu_bo_del_ttm(struct ttm_buffer_object *bo)
     kfree(rbo);
 }
 
-static void set_placement_list(struct ttm_place *pl, unsigned *n, uint32_t domain)
-{
-    *n = 0;
-
-    if (domain & RVGPU_GEM_DOMAIN_VRAM) {
-        pl[*n].mem_type = TTM_PL_VRAM;
-        pl[*n].flags = 0;
-        (*n)++;
-    }
-
-    if (domain & RVGPU_GEM_DOMAIN_GART) {
-        pl[*n].mem_type = TTM_PL_TT;
-        pl[*n].flags = 0;
-        (*n)++;
-    }
-
-    if (domain & RVGPU_GEM_DOMAIN_CPU) {
-        pl[*n].mem_type = TTM_PL_SYSTEM;
-        pl[(*n)++].flags = 0;
-    }
-}
-
-static void set_placement_range(struct rvgpu_bo *rbo, uint32_t domain)
-{
-    struct rvgpu_device *dev = rvgpu_bdev(rbo->bo.bdev);
-    u64 vram_size = dev->vraminfo.size;
-    unsigned i, fpfn, lpfn;
-
-    if ((domain & RVGPU_GEM_DOMAIN_VRAM) && (rbo->bo.base.size < vram_size / 4)) {
-        fpfn = 0;
-        lpfn = (vram_size / 2) >> PAGE_SHIFT;
-
-        for (i=0; i<rbo->placement.num_placement; ++i) {
-            rbo->placements[i].fpfn = fpfn;
-            rbo->placements[i].lpfn = lpfn;
-        }
-
-        for (i=0; i<rbo->placement.num_busy_placement; i++) {
-            rbo->busy_placements[i].fpfn = fpfn;
-            rbo->busy_placements[i].lpfn = lpfn;
-        }
-    }
-}
-
 void rvgpu_bo_placement_set(struct rvgpu_bo *rbo, uint32_t domain, uint32_t busy)
 {
+    u32 n = 0;
+    u32 pflag = 0;
     struct ttm_placement *pl = &rbo->placement;
+
+    if (rbo->bo.base.size <= PAGE_SIZE) {
+        pflag |= TTM_PL_FLAG_TOPDOWN;
+    }
 
     pl->num_placement = 1;
     pl->num_busy_placement = 1;
 
     pl->placement = rbo->placements;
-    set_placement_list(rbo->placements, &pl->num_placement, domain);
+    pl->busy_placement = rbo->placements;
 
-    pl->busy_placement = rbo->busy_placements;
-    set_placement_list(rbo->busy_placements, &pl->num_busy_placement, domain | busy);
-
-    set_placement_range(rbo, domain);
+    rbo->placements[n].mem_type = TTM_PL_VRAM;
+    rbo->placements[n].flags = pflag;
+    rbo->placements[n].fpfn = 0;
+    rbo->placements[n].lpfn = 0;
+    n++;
 
     // printk("pl->placement.fpfn: %d\n", pl->placement->fpfn);
     // printk("pl->placement.lpfn: %d\n", pl->placement->lpfn);

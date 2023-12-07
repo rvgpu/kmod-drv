@@ -38,6 +38,8 @@ int rvgpu_device_init(struct rvgpu_device *rdev, uint32_t flags)
     // initialize VRAM
     rdev->vraminfo.base = pci_resource_start(pdev, 0);
     rdev->vraminfo.size = pci_resource_len(pdev, 0);
+    DRM_INFO("vram base: 0x%08x, size: %u\n", 
+            (uint32_t)rdev->vraminfo.base, (unsigned)rdev->vraminfo.size);
     rvgpu_ttm_init(rdev);
 
 
