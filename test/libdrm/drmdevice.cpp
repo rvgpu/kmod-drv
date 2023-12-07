@@ -122,7 +122,7 @@ main(void)
     printf("--- Devices reported %d ---\n", max_devices);
 
 
-    devices = calloc(max_devices, sizeof(drmDevicePtr));
+    devices = (drmDevicePtr *)calloc(max_devices, sizeof(drmDevicePtr));
     if (devices == NULL) {
         printf("Failed to allocate memory for the drmDevicePtr array\n");
         return -1;
