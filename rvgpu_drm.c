@@ -4,6 +4,7 @@
 #include <drm/drm_drv.h>
 
 #include "rvgpu.h"
+#include "rvgpu_debug.h"
 #include "rvgpu_drm.h"
 
 /*
@@ -29,7 +30,7 @@ int rvgpu_driver_open(struct drm_device *dev, struct drm_file *fpriv)
     cli->prog_pid = pid_nr(fpriv->pid);
     cli->rdev = rdev;
     
-    printk("rvgpu_driver_open: %s[%d]\n", cli->prog_name, cli->prog_pid);
+    RVGPU_DEBUG_INFO("open driver: [%d] %s\n", cli->prog_pid, cli->prog_name);
     fpriv->driver_priv = cli;
 
     mutex_lock(&rdev->clients_lock);
@@ -58,7 +59,7 @@ void rvgpu_driver_postclose(struct drm_device *dev, struct drm_file *fpriv)
         return ;
     }
 
-    printk("rvgpu_driver_postclose: %s[%d]\n", cli->prog_name, cli->prog_pid);
+    RVGPU_DEBUG_INFO("close driver: [%d] %s\n", cli->prog_pid, cli->prog_name);
     kfree(cli);
 
     drm_dev_exit(dev_index);
@@ -68,5 +69,5 @@ void rvgpu_driver_postclose(struct drm_device *dev, struct drm_file *fpriv)
 
 void rvgpu_driver_release(struct drm_device *dev)
 {
-    printk("rvgpu_driver_release\n");
+    RVGPU_FUNC_TODO();
 }

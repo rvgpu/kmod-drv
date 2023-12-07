@@ -1,5 +1,6 @@
 #include <linux/dma-buf.h>
 
+#include "rvgpu_debug.h"
 #include "rvgpu_dma_buf.h"
 
 /**
@@ -14,7 +15,7 @@
  */
 struct drm_gem_object *rvgpu_gem_prime_import(struct drm_device *dev, struct dma_buf *dma_buf)
 {
-    printk("rvgpu_gem_prime_import TODO\n");
+    RVGPU_FUNC_TODO();
 
     return NULL;
 }

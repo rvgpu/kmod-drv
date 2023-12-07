@@ -9,6 +9,7 @@
 #include <drm/drm_module.h>
 
 #include "rvgpu.h"
+#include "rvgpu_debug.h"
 #include "rvgpu_dma_buf.h"
 #include "rvgpu_drv.h"
 #include "rvgpu_drm.h"
@@ -56,6 +57,7 @@ static int rvgpu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
     unsigned long flags = id->driver_data;
     int ret = 0;
 
+    RVGPU_FUNC_BEGIN();
     rdev = devm_drm_dev_alloc(&pdev->dev, &rvgpu_drm_driver, typeof(*rdev), ddev);
     if (IS_ERR(rdev)) {
         return PTR_ERR(rdev);
@@ -79,8 +81,7 @@ static int rvgpu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
         goto err_pci;
     } 
 
-    printk("rvgpu pci probe done\n");
-
+    RVGPU_FUNC_END();
     return 0;
 err_pci:
     pci_disable_device(pdev);
@@ -91,13 +92,14 @@ static void rvgpu_pci_remove(struct pci_dev *pdev) {
     struct drm_device *ddev = pci_get_drvdata(pdev);
     struct rvgpu_device *rdev = drm_to_rdev(ddev);
 
+    RVGPU_FUNC_BEGIN();
     drm_dev_unplug(ddev);
 
     rvgpu_device_fini(rdev);
 
     pci_disable_device(pdev);
     pci_wait_for_pending_transaction(pdev);
-    printk("rvgpu pci remove done\n");
+    RVGPU_FUNC_END();
 }
 
 static struct pci_device_id rvgpu_id_tbl[] = {

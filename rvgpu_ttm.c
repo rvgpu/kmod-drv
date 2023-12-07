@@ -1,12 +1,13 @@
 #include "drm/ttm/ttm_range_manager.h"
 
 #include "rvgpu.h"
+#include "rvgpu_debug.h"
 #include "rvgpu_ttm.h"
 #include "rvgpu_bo.h"
 
 static void rvgpu_manager_del(struct ttm_resource_manager *man, struct ttm_resource *reg)
 {
-    printk("%s TODO\n", __func__);
+    RVGPU_FUNC_TODO();
 }
 
 static bool rvgpu_manager_intersects(struct ttm_resource_manager *man,
@@ -14,7 +15,7 @@ static bool rvgpu_manager_intersects(struct ttm_resource_manager *man,
             const struct ttm_place *place,
             size_t size)
 {
-    printk("%s TODO\n", __func__);
+    RVGPU_FUNC_TODO();
     return false;
 }
 
@@ -23,7 +24,7 @@ static bool rvgpu_manager_compatible(struct ttm_resource_manager *man,
             const struct ttm_place *place,
             size_t size)
 {
-    printk("%s TODO\n", __func__);
+    RVGPU_FUNC_TODO();
     return false;
 }
 
@@ -32,8 +33,8 @@ static int rvgpu_vram_manager_new(struct ttm_resource_manager *man,
             const struct ttm_place *place,
             struct ttm_resource **res)
 {
-    // struct rvgpu_bo *rbo = rvgpu_bo(bo);
     struct rvgpu_device *rdev = rvgpu_bdev(bo->bdev);
+    RVGPU_FUNC_BEGIN();
 
     if (rdev->vraminfo.size == 0) {
         return -ENOMEM;
@@ -46,7 +47,7 @@ static int rvgpu_vram_manager_new(struct ttm_resource_manager *man,
 
     ttm_resource_init(bo, place, *res);
 
-    printk("%s ok\n", __func__);
+    RVGPU_FUNC_END();
     return 0;
 }
 
@@ -84,14 +85,14 @@ int rvgpu_ttm_init(struct rvgpu_device *rdev)
                           0);
 
     if (ret) {
-        printk("error to initialising bo driver, %d\n", ret);
+        RVGPU_ERROR("error to initialising bo driver, %d\n", ret);
         return ret;
     }
     
     /* VRAM init */
     ret = rvgpu_ttm_init_vram(rdev);
     if (ret) {
-        printk("VRAM mm init failed, %d\n", ret);
+        RVGPU_ERROR("VRAM mm init failed, %d\n", ret);
         return ret;
     } 
 
