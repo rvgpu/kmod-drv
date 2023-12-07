@@ -69,6 +69,7 @@ int rvgpu_bo_init(struct rvgpu_bo *rbo, u64 size, int align, u32 domain,
     int type = sg ? ttm_bo_type_sg : ttm_bo_type_device;
     int ret = 0;
 
+    printk("%s start\n", __func__);
     rvgpu_bo_placement_set(rbo, domain, 0);
     INIT_LIST_HEAD(&rbo->io_reserve_lru);
 
@@ -79,6 +80,7 @@ int rvgpu_bo_init(struct rvgpu_bo *rbo, u64 size, int align, u32 domain,
         return ret;
     }
 
+    printk("%s ok\n", __func__);
     return ret;
 }
 
@@ -106,14 +108,27 @@ rvgpu_bo_move(struct ttm_buffer_object *bo, bool evict,
               struct ttm_operation_ctx *ctx,
               struct ttm_resource *new_reg,
               struct ttm_place *hpp) {
-    printk("rvgpu_bo_move TODO\n");
-    return 0;
+    return ttm_bo_move_memcpy(bo, ctx, new_reg);
 }
 
 static int
-rvgpu_ttm_io_mem_reserve(struct ttm_device *bdev, struct ttm_resource *reg)
+rvgpu_ttm_io_mem_reserve(struct ttm_device *bdev, struct ttm_resource *mem)
 {
-    printk("rvgpu_ttm_io_mem_reserve TODO\n");
+    struct rvgpu_device *rdev = rvgpu_bdev(bdev);
+    switch (mem->mem_type) {
+        case TTM_PL_SYSTEM:
+            printk("reserve TTM_PL_SYSTEM\n");
+            break;
+        case TTM_PL_VRAM:
+            mem->bus.is_iomem = true;
+            mem->bus.offset = (mem->start << PAGE_SHIFT) + rdev->vraminfo.base;
+            mem->bus.caching = ttm_write_combined;
+            break;
+        default:
+            return -EINVAL;
+    }
+
+    printk("rvgpu_ttm_io_mem_reserve ok\n");
     return 0;
 }
 

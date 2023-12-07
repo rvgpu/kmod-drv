@@ -5,18 +5,6 @@
 #include "rvgpu_drm.h"
 #include "rvgpu_gem.h"
 
-static vm_fault_t rvgpu_ttm_fault(struct vm_fault *vmf)
-{
-    return 0;
-}
-
-static const struct vm_operations_struct rvgpu_ttm_vm_ops = {
-    .fault = rvgpu_ttm_fault,
-    .open = ttm_bo_vm_open,
-    .close = ttm_bo_vm_close,
-    .access = ttm_bo_vm_access,
-};
-
 void rvgpu_gem_object_del(struct drm_gem_object *gem)
 {
     printk("%s TODO\n", __func__);
@@ -24,12 +12,22 @@ void rvgpu_gem_object_del(struct drm_gem_object *gem)
 
 int rvgpu_gem_object_open(struct drm_gem_object *gem, struct drm_file *file_priv)
 {
-    printk("%s TODO\n", __func__);
+    printk("%s DONE\n", __func__);
     return 0;
 }
 
 void rvgpu_gem_object_close(struct drm_gem_object *gem, struct drm_file *file_priv)
 {
+    printk("%s TODO\n", __func__);
+}
+
+static int rvgpu_gem_ttm_vmap(struct drm_gem_object *obj, struct iosys_map *map) {
+    printk("%s TODO\n", __func__);
+    return 0;
+}
+
+static void rvgpu_gem_ttm_vunmap(struct drm_gem_object *obj, struct iosys_map *map) {
+    printk("%s TODO\n", __func__);
 }
 
 const struct drm_gem_object_funcs rvgpu_gem_object_funcs = {
@@ -39,10 +37,10 @@ const struct drm_gem_object_funcs rvgpu_gem_object_funcs = {
     .pin = rvgpu_gem_prime_pin,
     .unpin = rvgpu_gem_prime_unpin,
     .get_sg_table = rvgpu_gem_prime_get_sg_table,
-    .vmap = drm_gem_ttm_vmap,
-    .vunmap = drm_gem_ttm_vunmap,
+    .vmap = rvgpu_gem_ttm_vmap,
+    .vunmap = rvgpu_gem_ttm_vunmap,
     .mmap = drm_gem_ttm_mmap,
-    .vm_ops = &rvgpu_ttm_vm_ops,
+    .print_info = drm_gem_ttm_print_info,
 };
 
 int
@@ -52,11 +50,13 @@ rvgpu_gem_new(struct rvgpu_cli *cli, u64 size, int align, u32 domain, u32 flags,
     struct rvgpu_bo *rbo;
     int ret = 0;
 
+    printk("%s start\n", __func__);
     rbo = rvgpu_bo_alloc(cli, &size, &align, domain, flags);
     if (IS_ERR(rbo)) {
         return PTR_ERR(rbo);
     }
 
+printk("000\n");
     rbo->bo.base.funcs = &rvgpu_gem_object_funcs;
 
     /* Initialize the embedded gem-object.
@@ -69,6 +69,7 @@ rvgpu_gem_new(struct rvgpu_cli *cli, u64 size, int align, u32 domain, u32 flags,
         return ret;
     }
 
+printk("111\n");
     ret = rvgpu_bo_init(rbo, size, align, domain, NULL, NULL);
 
     *prbo = rbo;
@@ -84,6 +85,7 @@ rvgpu_ioctl_gem_new(struct drm_device *ddev, void *data, struct drm_file *file_p
     struct rvgpu_bo *rbo = NULL;
     int ret = 0;
 
+    printk("%s start\n", __func__);
     ret = rvgpu_gem_new(cli, req->in.size, req->in.alignment, req->in.domains, req->in.flags, &rbo);
     if (ret) {
         return ret;
@@ -95,5 +97,6 @@ rvgpu_ioctl_gem_new(struct drm_device *ddev, void *data, struct drm_file *file_p
     }
 
     drm_gem_object_put(&rbo->bo.base);
+    printk("%s ok\n", __func__);
     return ret;
 }
